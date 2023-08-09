@@ -1,0 +1,32 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- none
+
+pool:
+  #vmImage: windows-latest
+  name: Default
+
+variables:
+  - name: serviceConnection
+    value: aml-vnet-2-con-071801
+  - name: resourceGroup
+    value: aml-vnet
+  - name: workspaceName
+    value: aml-vnet-2
+steps:
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: ${{ variables.serviceConnection}}
+      #scriptType: "bash"
+      scriptType: ps
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        az extension add -n ml -y
+        az ml job create -f exec-jobs/single-job-pipeline.yml -g ${{ variables.resourceGroup}} -w ${{ variables.workspaceName}}
+    displayName: "create aml train job"
+
